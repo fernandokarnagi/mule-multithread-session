@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:redis="http://www.mulesoft.org/schema/mule/redis" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.6.1"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:objectstore="http://www.mulesoft.org/schema/mule/objectstore"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/objectstore http://www.mulesoft.org/schema/mule/objectstore/current/mule-objectstore.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/redis http://www.mulesoft.org/schema/mule/redis/current/mule-redis.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8090" basePath="api" doc:name="HTTP Listener Configuration"/>
+    <asynchronous-processing-strategy name="Asynchronous_Processing_Strategy" maxThreads="10" minThreads="10" doc:name="Asynchronous Processing Strategy" poolExhaustedAction="WAIT"/>
+    <redis:config name="Redis" doc:name="Redis"/>
+    <objectstore:config name="ObjectStore__Configuration"     doc:name="ObjectStore: Configuration"/>
+    <flow name="sessionvarsFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/test" doc:name="HTTP"/>
+
+
+        
+        <set-session-variable variableName="myvar" value="1" doc:name="Session Variable"/>
+        <set-variable variableName="myglobal" value="1" doc:name="Variable"/>
+        <flow-ref name="SubFlow_InitSessions" doc:name="SubFlow_InitSessions"/>
+        <expression-component doc:name="Expression"><![CDATA[sessionVars.mydata = new java.util.ArrayList();
+sessionVars.mydata.add("1");
+sessionVars.mydata.add("2");
+sessionVars.mydata.add("3");
+sessionVars.mydata.add("4");
+sessionVars.mydata.add("5");
+
+sessionVars.myvar  = 1;
+sessionVars.totalProcessed =  0;
+
+sessionVars.omronSessionVars.fields.myvar = sessionVars.myvar;
+sessionVars.omronSessionVars.fields.totalProcessed = sessionVars.totalProcessed;]]></expression-component>
+        <set-payload value="#[sessionVars.mydata]" doc:name="Set Payload"/>
+        <foreach collection="#[payload]" doc:name="For Each">
+            <flow-ref name="SubFlow_PrepareSessions" doc:name="SubFlow_PrepareSessions"/>
+            <async processingStrategy="Asynchronous_Processing_Strategy" doc:name="Async">
+                <flow-ref name="SubFlow_ProcessMessage" doc:name="SubFlow_ProcessMessage"/>
+            </async>
+        </foreach>
+        <component class="sessionvars.SyncAggregrator" doc:name="Java"/>
+        <expression-component doc:name="Expression"><![CDATA[sessionVars.omronSessionVars.printTotal();]]></expression-component>
+        <set-payload value="OK" doc:name="Set Payload"/>
+    </flow>
+    <flow name="FlowSyncAggregator">
+        <vm:inbound-endpoint exchange-pattern="one-way" path="syncaggregator" doc:name="VM"/>
+        <expression-component doc:name="Expression"><![CDATA[sessionVars.totalProcessed = sessionVars.totalProcessed +1;]]></expression-component>
+        <logger message="sessionVars.totalProcessed: #[sessionVars.totalProcessed]" level="INFO" doc:name="Logger"/>
+    </flow>
+    <sub-flow name="SubFlow_ProcessMessage">
+        <flow-ref name="SubFlow_UseSessions" doc:name="SubFlow_UseSessions"/>
+        <logger message="#[sessionVars.omronSessionVars.fields] -&gt; #[sessionVars.omronSessionVars.fields.myvar]" level="INFO" doc:name="Logger"/>
+        <expression-component doc:name="Expression"><![CDATA[sessionVars.omronSessionVars.incrementSuccess();
+sessionVars.omronSessionVars.incrementFailed();
+sessionVars.omronSessionVars.incrementRecords();]]></expression-component>
+    </sub-flow>
+</mule>
