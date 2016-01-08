@@ -12,10 +12,10 @@ public class SyncAggregrator implements Callable {
 	public Object onCall(MuleEventContext eventContext) throws Exception {
 
 		while (true) {
-			SessionBean sessionBean = eventContext.getMessage().getProperty("",
-					PropertyScope.SESSION);
-			if (sessionBean.getTotalOriginalRecords() > sessionBean
-					.getTotalRecords()) {
+			SessionBean sessionBean = eventContext.getMessage().getProperty("omronSessionVars", PropertyScope.SESSION);
+			System.out.println("sessionBean.getTotalOriginalRecords() : " + sessionBean.getTotalOriginalRecords()
+					+ ", sessionBean.getTotalRecords: " + sessionBean.getTotalRecords());
+			if (sessionBean.getTotalOriginalRecords() > sessionBean.getTotalRecords()) {
 				System.out.println("Wait for 1 second");
 				Thread.sleep(1000);
 
