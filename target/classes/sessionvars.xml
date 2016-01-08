@@ -33,8 +33,12 @@ sessionVars.mydata.add("5");
 sessionVars.myvar  = 1;
 sessionVars.totalProcessed =  0;
 
+// Adding any session variable
 sessionVars.omronSessionVars.fields.myvar = sessionVars.myvar;
-sessionVars.omronSessionVars.fields.totalProcessed = sessionVars.totalProcessed;]]></expression-component>
+sessionVars.omronSessionVars.fields.totalProcessed = sessionVars.totalProcessed;
+
+// Set total original records  
+sessionVars.omronSessionVars.setTotalOriginalRecords(5);]]></expression-component>
         <set-payload value="#[sessionVars.mydata]" doc:name="Set Payload"/>
         <foreach collection="#[payload]" doc:name="For Each">
             <flow-ref name="SubFlow_PrepareSessions" doc:name="SubFlow_PrepareSessions"/>

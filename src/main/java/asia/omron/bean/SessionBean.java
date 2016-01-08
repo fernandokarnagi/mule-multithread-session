@@ -11,6 +11,7 @@ public class SessionBean implements Serializable {
 	private int totalSuccess = 0;
 	private int totalFailed = 0;
 	private int totalRecords = 0;
+	private int totalOriginalRecords = 0;
 
 	public void incrementSuccess() {
 		totalSuccess++;
@@ -41,4 +42,29 @@ public class SessionBean implements Serializable {
 		this.fields = fields;
 	}
 
+	public int getTotalOriginalRecords() {
+		return totalOriginalRecords;
+	}
+
+	public void setTotalOriginalRecords(int totalOriginalRecords) {
+		this.totalOriginalRecords = totalOriginalRecords;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
+	public int getTotalSuccess() {
+		return totalSuccess;
+	}
+
+	public int getTotalFailed() {
+		return totalFailed;
+	}
+
+	public int getTotalRecords() {
+		return totalRecords;
+	}
+	
+	
 }

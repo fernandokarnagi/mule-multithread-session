@@ -2,17 +2,29 @@ package sessionvars;
 
 import org.mule.api.MuleEventContext;
 import org.mule.api.lifecycle.Callable;
+import org.mule.api.transport.PropertyScope;
+
+import asia.omron.bean.SessionBean;
 
 public class SyncAggregrator implements Callable {
 
 	@Override
 	public Object onCall(MuleEventContext eventContext) throws Exception {
-	
-		System.out.println("Sleep...");
-		Thread.sleep(5000);
-		
-		System.out.println("wakeup...");
+
+		while (true) {
+			SessionBean sessionBean = eventContext.getMessage().getProperty("",
+					PropertyScope.SESSION);
+			if (sessionBean.getTotalOriginalRecords() > sessionBean
+					.getTotalRecords()) {
+				System.out.println("Wait for 1 second");
+				Thread.sleep(1000);
+
+			} else {
+				break;
+			}
+		}
+
+		System.out.println("Resume thread");
 		return eventContext.getMessage().getOriginalPayload();
 	}
-
 }
