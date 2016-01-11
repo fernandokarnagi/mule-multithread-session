@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.python.modules.synchronize;
+
 public class SessionBean implements Serializable {
 
 	private static final long serialVersionUID = 2865634233350041610L;
@@ -13,21 +15,21 @@ public class SessionBean implements Serializable {
 	private int totalRecords = 0;
 	private int totalOriginalRecords = 0;
 
-	public void incrementSuccess() {
+	public synchronized void incrementSuccess() {
 		totalSuccess++;
 	}
 
-	public void incrementFailed() {
+	public synchronized void incrementFailed() {
 		totalFailed++;
 	}
 
-	public void incrementRecords() {
+	public synchronized void incrementRecords() {
 		totalRecords++;
 	}
 
 	public void printTotal() {
-		System.out.println("totalSuccess: " + totalSuccess + ", totalFailed: "
-				+ totalFailed + ", totalRecords: " + totalRecords);
+		System.out.println("totalSuccess: " + totalSuccess + ", totalFailed: " + totalFailed + ", totalRecords: "
+				+ totalRecords);
 	}
 
 	public SessionBean() {
@@ -65,6 +67,5 @@ public class SessionBean implements Serializable {
 	public int getTotalRecords() {
 		return totalRecords;
 	}
-	
-	
+
 }
