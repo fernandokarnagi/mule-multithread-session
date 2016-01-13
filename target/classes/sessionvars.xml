@@ -13,8 +13,6 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 http://www.mulesoft.org/schema/mule/redis http://www.mulesoft.org/schema/mule/redis/current/mule-redis.xsd">
     <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8090" basePath="api" doc:name="HTTP Listener Configuration"/>
     <asynchronous-processing-strategy name="Asynchronous_Processing_Strategy" maxThreads="5" minThreads="5" doc:name="Asynchronous Processing Strategy" poolExhaustedAction="WAIT"/>
-    <redis:config name="Redis" doc:name="Redis"/>
-    <objectstore:config name="ObjectStore__Configuration"     doc:name="ObjectStore: Configuration"/>
     <flow name="sessionvarsFlow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/test" doc:name="HTTP"/>
 
