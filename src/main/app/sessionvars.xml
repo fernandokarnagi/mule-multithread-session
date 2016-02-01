@@ -63,7 +63,7 @@ sessionVars.omronSessionVars.setTotalOriginalRecords(10);]]></expression-compone
     <sub-flow name="SubFlow_ProcessMessage">
         <flow-ref name="SubFlow_UseSessions" doc:name="SubFlow_UseSessions"/>
         <logger message="Before VM #[sessionVars.omronSessionVars]" level="INFO" doc:name="Logger"/>
-        <vm:outbound-endpoint exchange-pattern="request-response" path="sendmessage" doc:name="VM"/>
+        <flow-ref name="sessionvarsFlow1" doc:name="sessionvarsFlow1"/>
         <logger message="After VM #[sessionVars.omronSessionVars]" level="INFO" doc:name="Logger"/>
         <expression-component doc:name="Expression"><![CDATA[sessionVars.omronSessionVars.incrementSuccess();
 sessionVars.omronSessionVars.incrementFailed();

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.6.1"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
+    <flow name="vmtestFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/vmtest" doc:name="HTTP"/>
+        <logger message="Invoking VM Test " level="INFO" doc:name="Logger"/>
+        <set-session-variable variableName="a" value="1" doc:name="Session Variable"/>
+        <set-session-variable variableName="b" value="2" doc:name="Session Variable"/>
+        <expression-component doc:name="Expression"><![CDATA[sessionVars.c = 3;
+sessionVars.d = 4;]]></expression-component>
+        <logger message="Session Before Going to Java: #[sessionVars]" level="INFO" doc:name="Logger"/>
+        <flow-ref name="SubFlow_WithJava" doc:name="SubFlow_WithJava"/>
+        <logger message="Session after processing #[sessionVars]" level="INFO" doc:name="Logger"/>
+        <set-payload value="OK" doc:name="Set Payload"/>
+        <logger message="Session after set payload #[sessionVars]" level="INFO" doc:name="Logger"/>
+        <set-payload value="OK" doc:name="Set Payload"/>
+        <logger message="Session after second set payload #[sessionVars]" level="INFO" doc:name="Logger"/>
+    </flow>
+    <sub-flow name="SubFlow_WithVM">
+        <vm:outbound-endpoint exchange-pattern="request-response" path="vmtest" doc:name="VM"/>
+    </sub-flow>
+    <sub-flow name="SubFlow_WithJava">
+        <component class="asia.omron.bean.FlowInvoker" doc:name="Java"/>
+    </sub-flow>
+    <flow name="vmtestFlow1">
+        <vm:inbound-endpoint exchange-pattern="request-response" path="vmtest" doc:name="VM"/>
+        <logger message="Inside VM" level="INFO" doc:name="Logger"/>
+        <logger message="Session Vars inside VM: #[sessionVars]" level="INFO" doc:name="Logger"/>
+        <logger message="Payload inside VM: #[payload]" level="INFO" doc:name="Logger"/>
+        <set-session-variable variableName="e" value="5" doc:name="Session Variable"/>
+        <expression-component doc:name="Expression"><![CDATA[sessionVars.f = 6;]]></expression-component>
+        <logger message="Localized Session Vars inside VM #[sessionVars]" level="INFO" doc:name="Logger"/>
+        <set-payload value="GOOD" doc:name="Set Payload"/>
+    </flow>
+</mule>
